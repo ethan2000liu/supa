@@ -2,6 +2,9 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  base: './', // Use relative paths for assets
   plugins: [react()],
-  base: '/', // Use '/' for root domain deployment or '/subdirectory/' if deploying to a subdirectory
+  server: {
+    open: true, // Automatically open in browser
+  },
 });

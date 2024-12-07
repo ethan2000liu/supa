@@ -9,16 +9,18 @@ const App = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
+    const fetchSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
       if (error) {
-        console.error('Error fetching user:', error.message);
+        console.error('Error fetching session:', error.message);
+      } else if (session) {
+        setUser(session.user);
       } else {
-        setUser(user);
+        console.log('No active session found.');
       }
     };
 
-    fetchUser();
+    fetchSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
@@ -88,15 +90,20 @@ const App = () => {
           path="/dashboard"
           element={
             user ? (
-              <Dashboard user={user} onLogout={async () => {
-                await supabase.auth.signOut();
-                setUser(null);
-              }} />
+              <Dashboard
+                user={user}
+                onLogout={async () => {
+                  await supabase.auth.signOut();
+                  setUser(null);
+                }}
+              />
             ) : (
               <Navigate to="/" />
             )
           }
         />
+        {/* Catch-all for unmatched routes */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
